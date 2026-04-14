@@ -9,10 +9,8 @@ RUN cd /comfyui/custom_nodes && \
     git clone https://github.com/yolain/ComfyUI-Easy-Use.git && \
     git clone https://github.com/kijai/ComfyUI-KJNodes.git
 
-# Устанавливаем зависимости для нод
-RUN pip install --no-cache-dir -r /comfyui/custom_nodes/ComfyUI-WanVideoWrapper/requirements.txt && \
-    pip install --no-cache-dir -r /comfyui/custom_nodes/ComfyUI-Frame-Interpolation/requirements.txt && \
-    pip install --no-cache-dir opencv-python accelerate sageattention
+# Устанавливаем только необходимые пакеты (без sageattention и без requirements.txt нод)
+RUN pip install --no-cache-dir opencv-python accelerate
 
 # Скачиваем модели
 RUN comfy model download --url https://huggingface.co/jasonot/mycomfyui/blob/main/rife47.pth --relative-path models/rife --filename rife47.pth
