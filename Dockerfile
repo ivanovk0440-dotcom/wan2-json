@@ -1,9 +1,9 @@
 FROM runpod/worker-comfyui:5.5.1-base
 
-# ШАГ 1: Ожидание сети и установка git
+# Установка git и других зависимостей
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-# ШАГ 2: Клонирование кастомных нод
+# Клонирование кастомных нод
 WORKDIR /comfyui/custom_nodes
 RUN git clone https://github.com/kijai/ComfyUI-WanVideoWrapper.git
 RUN git clone https://github.com/fannovel16/ComfyUI-Frame-Interpolation.git
@@ -11,26 +11,17 @@ RUN git clone https://github.com/pythongosssss/ComfyUI-Custom-Scripts.git
 RUN git clone https://github.com/yolain/ComfyUI-Easy-Use.git
 RUN git clone https://github.com/kijai/ComfyUI-KJNodes.git
 
-# ШАГ 3: Установка зависимостей
-RUN pip install --no-cache-dir opencv-python accelerate
+# Установка всех необходимых Python-пакетов
+RUN pip install --no-cache-dir opencv-python accelerate gguf
 
-# ШАГ 4: Скачивание моделей
+# Скачивание моделей (ваши модели)
 WORKDIR /comfyui
-
-# Модель RIFE для Frame Interpolation
 RUN comfy model download --url "https://huggingface.co/jasonot/mycomfyui/resolve/main/rife47.pth?download=1" --relative-path models/rife --filename rife47.pth
-
-# Диффузионная модель Wan2.2
 RUN comfy model download --url "https://huggingface.co/FX-FeiHou/wan2.2-Remix/resolve/main/NSFW/Wan2.2_Remix_NSFW_i2v_14b_low_lighting_v2.0.safetensors?download=1" --relative-path models/diffusion_models --filename Wan2.2_Remix_NSFW_i2v_14b_low_lighting_v2.0.safetensors
-
-# Текстовый энкодер
 RUN comfy model download --url "https://huggingface.co/NSFW-API/NSFW-Wan-UMT5-XXL/resolve/main/nsfw_wan_umt5-xxl_fp8_scaled.safetensors?download=1" --relative-path models/text_encoders --filename nsfw_wan_umt5-xxl_fp8_scaled.safetensors
-
-# VAE модель
 RUN comfy model download --url "https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged/resolve/main/split_files/vae/wan_2.1_vae.safetensors?download=1" --relative-path models/vae --filename wan_2.1_vae.safetensors
 
-# ШАГ 5: Копирование вашего workflow
+# Копирование вашего workflow
 COPY Wan22-I2V-Remix.json /comfyui/workflow.json
 
-# ШАГ 6: Запуск ComfyUI
 CMD ["python", "/comfyui/main.py", "--listen", "0.0.0.0", "--port", "8188"]
